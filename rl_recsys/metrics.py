@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from common import N_SPECIAL
+from rl_recsys.common import N_SPECIAL
 
 
 def tokens_to_items(data, top):

@@ -12,10 +12,10 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 
-from common import BOS, N_SPECIAL, PAD, UNK, append_jsonl, atomic_save, log, seed_all
-from models import RewardModel, batch_inputs
-from rm_b import reward_quality, safe_auc
-from sequences import pad, train_sequences
+from rl_recsys.common import BOS, N_SPECIAL, PAD, UNK, append_jsonl, atomic_save, log, seed_all
+from rl_recsys.models import RewardModel, batch_inputs
+from rl_recsys.rm_b import reward_quality, safe_auc
+from rl_recsys.sequences import pad, train_sequences
 
 # ---------------------------------------------------------------- labels
 

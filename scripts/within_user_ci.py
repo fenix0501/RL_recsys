@@ -5,7 +5,7 @@ the test-week holdout, with a user-bootstrap CI for the RM-P minus RM-A differen
 Both the target and the prediction are centred on each user's mean over that user's holdout
 rows (users with >= 3 rows), then one Spearman is taken over all remaining rows.
 
-    python within_user_ci.py --config config_full.json --out out_full
+    python scripts/within_user_ci.py --out out_full
 """
 from __future__ import annotations
 
@@ -15,27 +15,27 @@ import pickle
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-from common import TASK2, log, pick_device, write_json
+from rl_recsys.common import ROOT, log, pick_device, write_json
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--config', default=str(TASK2 / 'config.json'))
-    ap.add_argument('--out', default=str(TASK2 / 'out'))
+    ap.add_argument('--config', default=str(ROOT / 'config.json'))
+    ap.add_argument('--out', default=str(ROOT / 'out'))
     ap.add_argument('--boot', type=int, default=200)
     args = ap.parse_args()
     cfg = json.loads(Path(args.config).read_text())
     out = Path(args.out)
     device = pick_device(cfg['device'])
-    from reward import load_rm_a, rm_holdout
-    from rm_personal import load_rm_p, predict
-    from sequences import make_split
+    from rl_recsys.reward import load_rm_a, rm_holdout
+    from rl_recsys.rm_personal import load_rm_p, predict
+    from rl_recsys.sequences import make_split
     data = pickle.loads((out / 'data.pkl').read_bytes())
     h = rm_holdout(data, make_split(data, 'test', cfg['max_eval_users'], cfg['seed']))
     df = pd.DataFrame({'u': h['users'], 'y': h['wp'], 'item_mean': h['item_mean'],

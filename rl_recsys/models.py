@@ -6,8 +6,8 @@ import torch
 from torch import nn
 from transformers import GPT2Config, GPT2LMHeadModel, GPT2Model
 
-from common import BOS, N_SPECIAL, PAD
-from sequences import context, pad
+from rl_recsys.common import BOS, N_SPECIAL, PAD
+from rl_recsys.sequences import context, pad
 
 
 def gpt_config(vocab_size, cfg, max_len):
@@ -101,5 +101,5 @@ def load_policy(path, device):
 
 
 def save_policy(model, path, **extra):
-    from common import atomic_save
+    from rl_recsys.common import atomic_save
     atomic_save({'conf': model.conf.to_dict(), 'model': model.state_dict(), **extra}, path)

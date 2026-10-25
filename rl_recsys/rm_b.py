@@ -6,7 +6,7 @@ affinity. If RL raises RM-A but not RM-B, the policy exploits RM-A rather than
 finding better items.
 
 LightGBM and torch ship separate OpenMP runtimes that crash together on macOS,
-so RM-B runs in its own worker process (this file as a script, no torch) and the
+so RM-B runs in its own worker process (`python -m rl_recsys.rm_b`, no torch) and the
 pipeline talks to it through `RewardBClient`.
 """
 from __future__ import annotations
@@ -20,8 +20,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-from common import N_SPECIAL, log
-from sequences import estimated_duration_h, history_end
+from rl_recsys.common import N_SPECIAL, log
+from rl_recsys.sequences import estimated_duration_h, history_end
 
 
 def safe_auc(y, p):
@@ -170,8 +170,10 @@ class RewardBClient:
 
     def __init__(self, data_path, model_path):
         self.model_path = Path(model_path)
-        self.proc = subprocess.Popen([sys.executable, __file__, str(data_path), str(model_path)],
-                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        from rl_recsys.common import ROOT
+        self.proc = subprocess.Popen([sys.executable, '-m', 'rl_recsys.rm_b', str(Path(data_path).resolve()),
+                                      str(self.model_path.resolve())],
+                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=ROOT)
 
     def _call(self, *req):
         pickle.dump(req, self.proc.stdin)

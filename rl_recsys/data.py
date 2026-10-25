@@ -7,13 +7,13 @@ import zipfile
 
 import pandas as pd
 
-from common import TASK2, log
+from rl_recsys.common import ROOT, log
 
 # Full three-table archive; the separate interactions.csv.zip in the same repository is truncated.
 COMMIT = 'f69775be31fa5779907cf0a92ddedb70037fb5ae'
 SHA256 = '50fc5b7db78cbda4c3d0ee5bb5bea4c416cff41e8af58aab0b661d0d3e9dfa9b'
 URL = f'https://raw.githubusercontent.com/irsafilo/KION_DATASET/{COMMIT}/data_original.zip'
-RAW = TASK2 / 'data/raw/data_original.zip'
+RAW = ROOT / 'data/raw/data_original.zip'
 N_ROWS = 5_476_251
 
 
@@ -33,7 +33,7 @@ def download():
 
 def load_raw():
     download()
-    cache = TASK2 / f'data/cache/interactions_{SHA256[:12]}.parquet'
+    cache = ROOT / f'data/cache/interactions_{SHA256[:12]}.parquet'
     if cache.exists():
         events = pd.read_parquet(cache)
     else:

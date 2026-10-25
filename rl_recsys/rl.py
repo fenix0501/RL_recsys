@@ -26,10 +26,10 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from common import N_SPECIAL, append_jsonl, atomic_save, log, seed_all
-from evaluate import evaluate_top
-from models import batch_inputs, mask_logits, recommend, save_policy
-from sequences import train_sequences
+from rl_recsys.common import N_SPECIAL, append_jsonl, atomic_save, log, seed_all
+from rl_recsys.evaluate import evaluate_top
+from rl_recsys.models import batch_inputs, mask_logits, recommend, save_policy
+from rl_recsys.sequences import train_sequences
 
 
 class ContextSampler:
@@ -100,7 +100,7 @@ def dpo_pairs(data, margin, window=5):
 
 
 def run(spec, data, sft_path, rm_a, rm_b, val, sft_val_top, cfg, device, run_dir, smoke=False, rm_ens=None, rm_w=None, rm_w7=None):
-    from models import load_policy
+    from rl_recsys.models import load_policy
     rl = cfg['rl']
     run_dir.mkdir(parents=True, exist_ok=True)
     if (run_dir / 'final.pt').exists():
@@ -135,14 +135,14 @@ def run(spec, data, sft_path, rm_a, rm_b, val, sft_val_top, cfg, device, run_dir
     rm_reward = rm_a
     if spec.get('rm') == 'personal':
         # RM-P (rm_personal.py) gives the reward; validation logging keeps the shared RM-A
-        from rm_personal import load_rm_p
+        from rl_recsys.rm_personal import load_rm_p
         rm_reward = load_rm_p(run_dir.parent.parent / 'rm_p.pt', data, device)
         aux['rm_w7'] = rm_reward
     pairs = dpo_pairs(data, spec.get('margin', 0.5)) if spec['method'] == 'dpo' else None
     awr_rows = awr_rows_of(data) if spec['method'] in ('awr', 'crr', 'awrv') or spec.get('ptx_alpha') else None
     critic = G = None
     if spec['method'] in ('crr', 'awrv'):
-        from crr import get_critic
+        from rl_recsys.crr import get_critic
         critic, G = get_critic(spec, data, sft_path, cfg, device, run_dir.parent.parent, smoke)
     if pairs is not None:
         log(f'DPO pairs: {len(pairs)}')
@@ -169,7 +169,7 @@ def run(spec, data, sft_path, rm_a, rm_b, val, sft_val_top, cfg, device, run_dir
         elif spec['method'] == 'awr':
             stats = awr_step(spec, policy, awr_rows, sampler.rng, data, cfg, device)
         elif spec['method'] in ('crr', 'awrv'):
-            from crr import crr_step
+            from rl_recsys.crr import crr_step
             stats = crr_step(spec, policy, critic, G, awr_rows, sampler.rng, data, cfg, device)
         else:
             raise ValueError(spec['method'])

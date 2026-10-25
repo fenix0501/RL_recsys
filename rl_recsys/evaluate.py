@@ -4,9 +4,9 @@ from __future__ import annotations
 import numpy as np
 import torch
 
-from common import N_SPECIAL
-from metrics import behaviour, relevance, tokens_to_items
-from models import batch_inputs, mask_logits
+from rl_recsys.common import N_SPECIAL
+from rl_recsys.metrics import behaviour, relevance, tokens_to_items
+from rl_recsys.models import batch_inputs, mask_logits
 
 
 @torch.no_grad()

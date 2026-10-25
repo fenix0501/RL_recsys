@@ -5,8 +5,9 @@ Every stage writes its artefact into --out and is skipped when the artefact
 exists, and RL runs resume from their last checkpoint, so re-running the same
 command after an interruption continues where it stopped.
 
-    python run.py                 # full pipeline (overnight)
-    python run.py --smoke         # tiny end-to-end check, separate folder
+    python run.py                 # selection sample of 200k users, out/
+    python run.py --full          # all users (the final runs of the report), out_full/
+    python run.py --smoke         # tiny end-to-end check, out_smoke/
     python run.py --runs grpo_r1_b0.05,awr   # only some RL runs
 """
 from __future__ import annotations
@@ -24,26 +25,29 @@ import numpy as np
 import pandas as pd
 import torch
 
-from common import TASK2, log, pick_device, write_json
+from rl_recsys.common import ROOT, log, pick_device, write_json
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--config', default=str(TASK2 / 'config.json'))
-    ap.add_argument('--out', help='artefact folder (default out or out_smoke)')
+    ap.add_argument('--config', default=str(ROOT / 'config.json'))
+    ap.add_argument('--out', help='artefact folder (default out, out_full or out_smoke)')
+    ap.add_argument('--full', action='store_true', help='all users instead of the n_users sample')
     ap.add_argument('--smoke', action='store_true')
     ap.add_argument('--runs', help='comma-separated RL run names (default: all in config)')
     ap.add_argument('--final', help='comma-separated runs to evaluate on test (default: all finished)')
     ap.add_argument('--stop-after', choices=['data', 'sft', 'rm', 'rl'], help='stop after this stage')
     args = ap.parse_args()
     cfg = json.loads(Path(args.config).read_text())
-    out = Path(args.out or TASK2 / ('out_smoke' if args.smoke else 'out')).resolve()
+    if args.full:
+        cfg['n_users'] = 10**7
+    out = Path(args.out or ROOT / ('out_smoke' if args.smoke else 'out_full' if args.full else 'out')).resolve()
     out.mkdir(parents=True, exist_ok=True)
     device = pick_device(cfg['device'])
     log(f'device={device} out={out} smoke={args.smoke}')
     started = time.time()
 
-    from sequences import build, make_split
+    from rl_recsys.sequences import build, make_split
     data_path = out / 'data.pkl'
     if data_path.exists():
         data = pickle.loads(data_path.read_bytes())
@@ -56,16 +60,16 @@ def main():
     if args.stop_after == 'data':
         return
 
-    from gpt import train_sft
-    from models import load_policy, recommend
+    from rl_recsys.gpt import train_sft
+    from rl_recsys.models import load_policy, recommend
     if not (out / 'sft.pt').exists():
         train_sft(data, val, cfg, device, out, smoke=args.smoke)
     sft = load_policy(out / 'sft.pt', device)
     if args.stop_after == 'sft':
         return
 
-    from reward import load_rm_a, rm_holdout, train_rm_a
-    from rm_b import RewardBClient
+    from rl_recsys.reward import load_rm_a, rm_holdout, train_rm_a
+    from rl_recsys.rm_b import RewardBClient
     if not (out / 'rm_a.pt').exists():
         state = torch.load(out / 'sft.pt', map_location='cpu', weights_only=False)
         train_rm_a(data, state['model'], sft.conf, val, cfg, device, out, smoke=args.smoke)
@@ -101,14 +105,14 @@ def main():
     if args.stop_after == 'rm':
         return
 
-    import rl
+    from rl_recsys import rl
     sft_val_top = recommend(sft, data, val.users, val.end, cfg['max_len'], device)
     specs = cfg['rl']['runs']
     if args.runs:
         names = set(args.runs.split(','))
         specs = [s for s in specs if s['name'] in names]
     if any(s.get('rm') == 'personal' for s in specs) and not (out / 'rm_p.pt').exists():
-        from rm_personal import train_rm_p
+        from rl_recsys.rm_personal import train_rm_p
         train_rm_p(data, out / 'sft.pt', val, cfg, device, out, smoke=args.smoke)
     for spec in specs:
         rl.run(spec, data, out / 'sft.pt', rm_a, rm_b, val, sft_val_top, cfg, device,
@@ -124,10 +128,10 @@ def main():
 
 def final_eval(data, test, sft, rm_a, rm_b, cfg, device, out, smoke, only=None):
     """Same protocol for every model on the test week; written once at the end."""
-    from evaluate import evaluate_top, multistep
-    from gpt import popular_top
-    from metrics import tokens_to_items
-    from models import load_policy, recommend
+    from rl_recsys.evaluate import evaluate_top, multistep
+    from rl_recsys.gpt import popular_top
+    from rl_recsys.metrics import tokens_to_items
+    from rl_recsys.models import load_policy, recommend
     sft_top = recommend(sft, data, test.users, test.end, cfg['max_len'], device)
     models = {'popular': None, 'sft': sft}
     for d in sorted((out / 'runs').glob('*/final.pt')):

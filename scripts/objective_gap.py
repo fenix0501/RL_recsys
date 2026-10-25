@@ -8,7 +8,7 @@ distance to the frontier at the same KL is its optimisation gap. This is scale-f
 advantage normalisation inside GRPO does not matter. Everything is exact over the full
 vocabulary, per test context, then averaged.
 
-    python objective_gap.py --config config_full.json --out out_full
+    python scripts/objective_gap.py --out out_full
 """
 from __future__ import annotations
 
@@ -18,13 +18,13 @@ import pickle
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 import pandas as pd
 import torch
 
-from common import N_SPECIAL, TASK2, log, pick_device
+from rl_recsys.common import N_SPECIAL, ROOT, log, pick_device
 from tilted import all_items
 
 BETAS = [float(b) for b in np.geomspace(0.002, 20, 41)]  # dense: the gap is read off by interpolation
@@ -45,8 +45,8 @@ def stats(logq, logp_ref, r):
 @torch.no_grad()
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--out', default=str(TASK2 / 'out'))
-    ap.add_argument('--config', default=str(TASK2 / 'config.json'))
+    ap.add_argument('--out', default=str(ROOT / 'out'))
+    ap.add_argument('--config', default=str(ROOT / 'config.json'))
     ap.add_argument('--users', type=int, default=5000)
     ap.add_argument('--models', help='name:reward,... instead of the default MODELS')
     ap.add_argument('--tag', default='', help='suffix for the output csv files')
@@ -55,9 +55,9 @@ def main():
     out = Path(args.out)
     cfg = json.loads(Path(args.config).read_text())
     device = pick_device(cfg['device'])
-    from models import batch_inputs, load_policy, mask_logits
-    from reward import load_rm_a
-    from sequences import make_split
+    from rl_recsys.models import batch_inputs, load_policy, mask_logits
+    from rl_recsys.reward import load_rm_a
+    from rl_recsys.sequences import make_split
     data = pickle.loads((out / 'data.pkl').read_bytes())
     split = make_split(data, 'test', cfg['max_eval_users'], cfg['seed'])
     users, ends = split.users[:args.users], split.end[:args.users]

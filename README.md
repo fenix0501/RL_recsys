@@ -20,10 +20,10 @@ GPT-2 обучается предсказывать следующий объе�
 
 ## Данные
 
-MTS KION, полный архив `data_original.zip` (~79 МБ) из [irsafilo/KION_DATASET](https://github.com/irsafilo/KION_DATASET), закреплённый на коммите и проверяемый по SHA-256 (оба значения в `data.py`). Данные в репозиторий не входят. `run.py` скачивает архив в `data/raw/` сам, можно и заранее:
+MTS KION, полный архив `data_original.zip` (~79 МБ) из [irsafilo/KION_DATASET](https://github.com/irsafilo/KION_DATASET), закреплённый на коммите и проверяемый по SHA-256 (оба значения в `rl_recsys/data.py`). Данные в репозиторий не входят. `run.py` скачивает архив в `data/raw/` сам, можно и заранее:
 
 ```bash
-python data.py
+python -m rl_recsys.data
 ```
 
 ## Воспроизведение
@@ -47,12 +47,13 @@ scripts/reproduce_full.sh
 Отдельные стадии и прогоны:
 
 ```bash
-.venv/bin/python run.py --config config_full.json --out out_full --stop-after rm         # данные, SFT, RM-A, RM-B
-.venv/bin/python run.py --config config_full.json --out out_full --stop-after rl --runs grpo_r9_b2.0_fix,awr_hours_g1
-.venv/bin/python run.py --config config_full.json --out out_full --runs awr_hours_g1 --final awr_hours_g1   # тест
+.venv/bin/python run.py --full --stop-after rm                                     # данные, SFT, RM-A, RM-B
+.venv/bin/python run.py --full --stop-after rl --runs grpo_r9_b2.0_fix,awr_hours_g1  # RL-прогоны
+.venv/bin/python run.py --full --runs awr_hours_g1 --final awr_hours_g1              # тест
+.venv/bin/python scripts/eval_fresh.py --out out_full                                # свежие пользователи
 ```
 
-Отбор вариантов в начале работы шёл на подвыборке 200 тыс. пользователей: тот же `run.py` с `config.json` (папка `out/`) и прогонами без суффикса `_fix`. Все прогоны описаны в `config.json` → `rl.runs`; `config_full.json` отличается только `n_users`.
+`--full` берёт всех пользователей и пишет в `out_full/`. Без него `run.py` работает на подвыборке 200 тыс. пользователей (`out/`), на которой в начале шёл отбор вариантов (прогоны без суффикса `_fix`). Все прогоны описаны в `config.json` → `rl.runs`.
 
 ## Протокол
 
@@ -65,18 +66,15 @@ scripts/reproduce_full.sh
 | Путь | Что там |
 | --- | --- |
 | `run.py` | точка входа: данные → SFT → RM-A / RM-B → RL-прогоны → тест |
-| `data.py` | загрузка и проверка архива KION, календарные недели |
-| `sequences.py` | последовательности пользователей, словарь, сплиты |
-| `gpt.py`, `models.py` | SFT GPT-2 (2 слоя, 128-мерные эмбеддинги), рекомендации, Popular |
-| `reward.py` | RM-A: GPT-2 от SFT с головами досмотра, возврата и склонности |
-| `rm_b.py` | RM-B: независимая LightGBM, только для оценки |
-| `rm_personal.py` | RM-P: RM-A с признаками пользователя, изотоническая калибровка |
-| `rl.py` | GRPO, AWR, DPO/IPO, Best-of-N, CRR, все награды R1–R9 |
-| `crr.py` | критик Q(s, a) на наблюдаемой награде для CRR и AWR с критиком |
-| `tilted.py` | аналитический оптимум π* для каждой награды по сетке β |
-| `objective_gap.py` | доля прироста E[r] − β·KL, которую берёт обученная политика |
-| `evaluate.py`, `metrics.py` | NDCG/Recall/MAP, proxy длительности, покрытие, многошаговая генерация |
-| `eval_at50.py`, `eval_fresh.py`, `within_user_ci.py` | топ-50, свежие пользователи, Spearman внутри пользователя |
-| `config.json`, `config_full.json` | гиперпараметры и список всех RL-прогонов |
+| `config.json` | гиперпараметры и список всех RL-прогонов |
+| `rl_recsys/data.py`, `sequences.py` | загрузка KION, последовательности пользователей, словарь, сплиты |
+| `rl_recsys/gpt.py`, `models.py` | SFT GPT-2 (2 слоя, 128-мерные эмбеддинги), рекомендации, Popular |
+| `rl_recsys/reward.py` | RM-A: GPT-2 от SFT с головами досмотра, возврата и склонности |
+| `rl_recsys/rm_b.py` | RM-B: независимая LightGBM, только для оценки |
+| `rl_recsys/rm_personal.py` | RM-P: RM-A с признаками пользователя, изотоническая калибровка |
+| `rl_recsys/rl.py`, `crr.py` | GRPO, AWR, DPO/IPO, Best-of-N, CRR с критиком, награды R1–R9 |
+| `rl_recsys/evaluate.py`, `metrics.py` | NDCG/Recall/MAP, proxy длительности, покрытие, многошаговая генерация |
+| `scripts/tilted.py`, `objective_gap.py` | аналитический оптимум π* и доля прироста, которую берёт обученная политика |
+| `scripts/eval_at50.py`, `eval_fresh.py`, `within_user_ci.py` | топ-50, свежие пользователи, Spearman внутри пользователя |
 | `scripts/reproduce_full.sh` | все прогоны отчёта на полных данных |
 | `report.pdf` | отчёт |

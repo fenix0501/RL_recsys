@@ -13,7 +13,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from common import BOS, N_SPECIAL, PAD, UNK, log
+from rl_recsys.common import BOS, N_SPECIAL, PAD, UNK, log
 
 EPOCH = pd.Timestamp('1970-01-01')
 
@@ -23,7 +23,7 @@ def to_day(ts):
 
 
 def build(cfg, smoke=False):
-    from data import load_raw, split_dates
+    from rl_recsys.data import load_raw, split_dates
     events, users, items = load_raw()
     dates = split_dates(events)
     train_end, val_end = dates['validation']

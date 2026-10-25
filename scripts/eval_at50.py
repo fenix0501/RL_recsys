@@ -4,7 +4,7 @@
 Same test users, masking and paired bootstrap against SFT as `run.py final_eval`, but only
 relevance and the duration proxy, so it needs no reward model and no retraining.
 
-    python eval_at50.py --config config_full.json --out out_full
+    python scripts/eval_at50.py --out out_full
 """
 from __future__ import annotations
 
@@ -14,29 +14,29 @@ import pickle
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 import pandas as pd
 
-from common import TASK2, log, pick_device
+from rl_recsys.common import ROOT, log, pick_device
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--config', default=str(TASK2 / 'config.json'))
-    ap.add_argument('--out', default=str(TASK2 / 'out'))
+    ap.add_argument('--config', default=str(ROOT / 'config.json'))
+    ap.add_argument('--out', default=str(ROOT / 'out'))
     ap.add_argument('--k', type=int, default=50)
     ap.add_argument('--runs', help='comma-separated run names (default: every runs/*/final.pt)')
     args = ap.parse_args()
     cfg = json.loads(Path(args.config).read_text())
     out, k = Path(args.out), args.k
     device = pick_device(cfg['device'])
-    from evaluate import realized_hours
-    from gpt import popular_top
-    from metrics import relevance, tokens_to_items
-    from models import load_policy, recommend
-    from sequences import make_split
+    from rl_recsys.evaluate import realized_hours
+    from rl_recsys.gpt import popular_top
+    from rl_recsys.metrics import relevance, tokens_to_items
+    from rl_recsys.models import load_policy, recommend
+    from rl_recsys.sequences import make_split
     data = pickle.loads((out / 'data.pkl').read_bytes())
     test = make_split(data, 'test', cfg['max_eval_users'], cfg['seed'])
     runs = args.runs.split(',') if args.runs else sorted(d.parent.name for d in (out / 'runs').glob('*/final.pt'))

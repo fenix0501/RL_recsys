@@ -7,7 +7,7 @@ test week has many more users with targets that no evaluation has ever looked at
 script scores only the candidates declared before running it, on all of those users, with
 the same masking, metrics and paired bootstrap against SFT as the selection test.
 
-    python eval_fresh.py --config config_full.json --out out_full
+    python scripts/eval_fresh.py --out out_full
 """
 from __future__ import annotations
 
@@ -17,18 +17,18 @@ import pickle
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 import pandas as pd
 
-from common import TASK2, log, pick_device
+from rl_recsys.common import ROOT, log, pick_device
 
 CANDIDATES = ['awr_hours_g1', 'crr_hours_g0.0_exp_b1', 'grpo_r9_b2.0_fix']
 
 
 def fresh_split(data, cfg):
-    from sequences import Split, make_split
+    from rl_recsys.sequences import Split, make_split
     full = make_split(data, 'test', 0, cfg['seed'])
     used = make_split(data, 'test', cfg['max_eval_users'], cfg['seed']).users
     val = make_split(data, 'val', cfg['max_eval_users'], cfg['seed']).users
@@ -39,16 +39,16 @@ def fresh_split(data, cfg):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--config', default=str(TASK2 / 'config.json'))
-    ap.add_argument('--out', default=str(TASK2 / 'out'))
+    ap.add_argument('--config', default=str(ROOT / 'config.json'))
+    ap.add_argument('--out', default=str(ROOT / 'out'))
     args = ap.parse_args()
     cfg = json.loads(Path(args.config).read_text())
     out = Path(args.out)
     device = pick_device(cfg['device'])
-    from evaluate import realized_hours
-    from gpt import popular_top
-    from metrics import behaviour, relevance, tokens_to_items
-    from models import load_policy, recommend
+    from rl_recsys.evaluate import realized_hours
+    from rl_recsys.gpt import popular_top
+    from rl_recsys.metrics import behaviour, relevance, tokens_to_items
+    from rl_recsys.models import load_policy, recommend
     data = pickle.loads((out / 'data.pkl').read_bytes())
     split = fresh_split(data, cfg)
     log(f'fresh test users: {len(split.users)}')

@@ -5,10 +5,10 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from common import N_SPECIAL, PAD, UNK, append_jsonl, log, seed_all
-from metrics import relevance, tokens_to_items
-from models import Policy, gpt_config, recommend, save_policy
-from sequences import chunks, pad
+from rl_recsys.common import N_SPECIAL, PAD, UNK, append_jsonl, log, seed_all
+from rl_recsys.metrics import relevance, tokens_to_items
+from rl_recsys.models import Policy, gpt_config, recommend, save_policy
+from rl_recsys.sequences import chunks, pad
 
 
 def popular_top(data, split, k=10, days=7):

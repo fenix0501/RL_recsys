@@ -13,26 +13,24 @@ Callers give the users before scoring: `set_users(rm, users, ends)` (no-op for o
 Also fits an isotonic calibration of the watched-share head on the validation holdout and
 reports the expected calibration error before and after, for RM-A and RM-P.
 
-    python rm_personal.py --config config_full.json --out out_full
+    python -m rl_recsys.rm_personal --out out_full
 """
 from __future__ import annotations
 
 import argparse
 import json
 import pickle
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
 
-from common import BOS, N_SPECIAL, PAD, append_jsonl, atomic_save, log, seed_all
-from models import RewardModel, batch_inputs
-from sequences import pad
+from rl_recsys.common import BOS, N_SPECIAL, PAD, append_jsonl, atomic_save, log, seed_all
+from rl_recsys.models import RewardModel, batch_inputs
+from rl_recsys.sequences import pad
 
 N_UF, N_IF = 8, 3
 
@@ -137,8 +135,8 @@ def load_rm_p(path, data, device):
 
 
 def train_rm_p(data, sft_path, val, cfg, device, out_dir, smoke=False, name='rm_p'):
-    from reward import return_labels, rm_holdout, rm_windows, window_ends
-    from rm_b import reward_quality, safe_auc
+    from rl_recsys.reward import return_labels, rm_holdout, rm_windows, window_ends
+    from rl_recsys.rm_b import reward_quality, safe_auc
     from transformers import GPT2Config
     r = cfg['rm_a']
     seed_all(cfg['seed'])
@@ -227,7 +225,7 @@ def predict(model, data, h, cfg, device, batch=1024):
 
 @torch.no_grad()
 def watch_auc_p(model, data, h, cfg, device, n_neg=4, batch=1024):
-    from rm_b import safe_auc
+    from rl_recsys.rm_b import safe_auc
     model.eval()
     scores, labels = [], []
     rng = np.random.default_rng(0)
@@ -274,14 +272,14 @@ def within_user(y, p, users, min_rows=3):
 
 def calibration_report(data, val, test, rms, cfg, device):
     """Isotonic calibration of the watched-share head fitted on the validation week, checked on the test week."""
-    from reward import rm_holdout
+    from rl_recsys.reward import rm_holdout
     from sklearn.isotonic import IsotonicRegression
     hv, ht = rm_holdout(data, val), rm_holdout(data, test)
     rep = {}
     for name, m in rms.items():
         pv, pt = predict(m, data, hv, cfg, device)[:, 0], predict(m, data, ht, cfg, device)[:, 0]
         iso = IsotonicRegression(out_of_bounds='clip').fit(pv, hv['wp'])
-        from rm_b import reward_quality
+        from rl_recsys.rm_b import reward_quality
         q = reward_quality(ht['wp'], pt, ht['item_mean'])
         rep[name] = {'test_spearman': q['spearman'], 'test_item_mean_spearman': q['baseline_item_mean_spearman'],
                      'test_mae': q['mae'], 'test_within_item_spearman': personal_signal(ht['wp'], pt, ht['tok']),
@@ -294,11 +292,11 @@ def calibration_report(data, val, test, rms, cfg, device):
 
 
 def main():
-    from common import TASK2, pick_device, write_json
-    from reward import load_rm_a
-    from sequences import make_split
+    from rl_recsys.common import ROOT, pick_device, write_json
+    from rl_recsys.reward import load_rm_a
+    from rl_recsys.sequences import make_split
     ap = argparse.ArgumentParser()
-    ap.add_argument('--config', default=str(TASK2 / 'config.json'))
+    ap.add_argument('--config', default=str(ROOT / 'config.json'))
     ap.add_argument('--out', required=True)
     ap.add_argument('--smoke', action='store_true')
     args = ap.parse_args()

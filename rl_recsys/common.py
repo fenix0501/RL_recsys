@@ -11,7 +11,7 @@ import numpy as np
 # torch is imported lazily: the RM-B worker process (LightGBM) must never load it,
 # because two OpenMP runtimes in one process crash on macOS.
 
-TASK2 = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 
 PAD, BOS, UNK = 0, 1, 2
 N_SPECIAL = 3

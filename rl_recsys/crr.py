@@ -20,16 +20,14 @@ whole vocabulary is one matmul and the expectation under pi is exact.
 `awrv` is classic AWR (Peng et al. 2019): the same weighted cross-entropy with
 A = G_t - V(s), V(s) = sum_a pi(a | s) Q(s, a).
 
-    python crr.py --config config_full.json --out out_full --critics hours:0.9,wp50:0.9
+    python -m rl_recsys.crr --out out_full --critics hours:0.9,wp50:0.9
 """
 from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import numpy as np
 import torch
@@ -37,8 +35,8 @@ from scipy.stats import spearmanr
 from torch import nn
 from transformers import GPT2Config, GPT2Model
 
-from common import BOS, N_SPECIAL, PAD, append_jsonl, atomic_save, log, seed_all
-from sequences import pad, train_sequences
+from rl_recsys.common import BOS, N_SPECIAL, PAD, append_jsonl, atomic_save, log, seed_all
+from rl_recsys.sequences import pad, train_sequences
 
 
 def step_rewards(data, kind, cap_hours):
@@ -194,7 +192,7 @@ def get_critic(spec, data, sft_path, cfg, device, out_dir, smoke=False):
 
 
 def crr_step(spec, policy, critic, G, awr, rng, data, cfg, device):
-    from rl import masked_logp
+    from rl_recsys.rl import masked_logp
     rows, _ = awr
     i = rng.integers(0, len(rows), cfg['rl']['batch_size'])
     logp, (x, lengths) = masked_logp(policy, data, rows[i, 0], rows[i, 1], cfg, device)
@@ -218,10 +216,10 @@ def crr_step(spec, policy, critic, G, awr, rng, data, cfg, device):
 
 
 def main():
-    from common import TASK2, pick_device
+    from rl_recsys.common import ROOT, pick_device
     import pickle
     ap = argparse.ArgumentParser()
-    ap.add_argument('--config', default=str(TASK2 / 'config.json'))
+    ap.add_argument('--config', default=str(ROOT / 'config.json'))
     ap.add_argument('--out', required=True)
     ap.add_argument('--critics', required=True, help='comma-separated reward:gamma, e.g. hours:0.9,wp50:0.9')
     ap.add_argument('--smoke', action='store_true')

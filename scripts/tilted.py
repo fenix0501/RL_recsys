@@ -8,7 +8,7 @@ reward and KL can reach, so comparing GRPO with it separates optimisation error 
 reward itself. beta here is in raw reward units (GRPO normalises advantages, so its beta is
 not on the same scale; compare the frontiers, not the beta values).
 
-    python tilted.py --out out_full
+    python scripts/tilted.py --out out_full
 """
 from __future__ import annotations
 
@@ -18,13 +18,13 @@ import pickle
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 import pandas as pd
 import torch
 
-from common import N_SPECIAL, TASK2, log, pick_device
+from rl_recsys.common import N_SPECIAL, ROOT, log, pick_device
 
 BETAS = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5]
 
@@ -32,7 +32,7 @@ BETAS = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5]
 @torch.no_grad()
 def tilted_tops(sft, rm_a, data, split, cfg, device, hours, k=10, batch=32, rm_w=None, rm_w7=None):
     """Top-k of the tilted policy for every (reward, beta), plus beta=inf (SFT itself)."""
-    from models import batch_inputs, mask_logits
+    from rl_recsys.models import batch_inputs, mask_logits
     sft.eval()
     E = rm_a.body.wte.weight  # [V, d]
     tops = {}
@@ -73,17 +73,17 @@ def all_items(rm, x, lengths, device):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--out', default=str(TASK2 / 'out'))
-    ap.add_argument('--config', default=str(TASK2 / 'config.json'))
+    ap.add_argument('--out', default=str(ROOT / 'out'))
+    ap.add_argument('--config', default=str(ROOT / 'config.json'))
     args = ap.parse_args()
     out = Path(args.out)
     cfg = json.loads(Path(args.config).read_text())
     device = pick_device(cfg['device'])
-    from evaluate import evaluate_top
-    from models import load_policy, recommend
-    from reward import load_rm_a
-    from rm_b import RewardBClient
-    from sequences import make_split
+    from rl_recsys.evaluate import evaluate_top
+    from rl_recsys.models import load_policy, recommend
+    from rl_recsys.reward import load_rm_a
+    from rl_recsys.rm_b import RewardBClient
+    from rl_recsys.sequences import make_split
     data = pickle.loads((out / 'data.pkl').read_bytes())
     sft = load_policy(out / 'sft.pt', device)
     rm_a = load_rm_a(out / 'rm_a.pt', device)
