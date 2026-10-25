@@ -1,0 +1,672 @@
+{
+  "seed": 7,
+  "n_users": 10000000,
+  "min_item_count": 5,
+  "max_len": 50,
+  "max_eval_users": 10000,
+  "device": "auto",
+  "gpt": {
+    "n_layer": 2,
+    "n_head": 2,
+    "n_embd": 128,
+    "dropout": 0.1,
+    "lr": 0.002,
+    "weight_decay": 0.01,
+    "batch_size": 256,
+    "max_epochs": 20,
+    "patience": 3
+  },
+  "rm_a": {
+    "lr": 0.001,
+    "batch_size": 256,
+    "max_epochs": 6,
+    "patience": 2,
+    "return_days": 7,
+    "ensemble": 3,
+    "watch_head": true,
+    "watch_negatives": 8,
+    "watch_window_days": 7
+  },
+  "rm_b": {
+    "train_weeks": 2,
+    "n_estimators": 400,
+    "learning_rate": 0.05,
+    "num_leaves": 31,
+    "min_child_samples": 100,
+    "n_jobs": 6
+  },
+  "rl": {
+    "steps": 4000,
+    "batch_size": 256,
+    "group_size": 8,
+    "lr": 3e-05,
+    "eval_every": 200,
+    "save_every": 200,
+    "val_users": 3000,
+    "r2_lambda": 0.05,
+    "r3_cap_hours": 3.0,
+    "runs": [
+      {
+        "name": "grpo_r1_b0.0",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 0.0
+      },
+      {
+        "name": "grpo_r1_b0.05",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 0.05
+      },
+      {
+        "name": "grpo_r1_b0.2",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 0.2
+      },
+      {
+        "name": "grpo_r1_b0.5",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 0.5
+      },
+      {
+        "name": "grpo_r1_b1.0",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 1.0
+      },
+      {
+        "name": "grpo_r1_b3.0",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 3.0
+      },
+      {
+        "name": "grpo_r2_b0.5",
+        "method": "grpo",
+        "reward": "r2",
+        "beta": 0.5
+      },
+      {
+        "name": "grpo_r3_b0.5",
+        "method": "grpo",
+        "reward": "r3",
+        "beta": 0.5
+      },
+      {
+        "name": "grpo_r4_b0.5",
+        "method": "grpo",
+        "reward": "r4",
+        "beta": 0.5
+      },
+      {
+        "name": "awr",
+        "method": "awr",
+        "temperature": 0.25
+      },
+      {
+        "name": "dpo_b0.1",
+        "method": "dpo",
+        "beta": 0.1,
+        "margin": 0.5
+      },
+      {
+        "name": "grpo_r1_b2.0",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 2.0
+      },
+      {
+        "name": "grpo_r1_b5.0",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 5.0
+      },
+      {
+        "name": "grpo_r1_b10.0",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 10.0
+      },
+      {
+        "name": "grpo_r1_b1.0_s2",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 1.0,
+        "seed": 11
+      },
+      {
+        "name": "grpo_r1_b3.0_s2",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 3.0,
+        "seed": 11
+      },
+      {
+        "name": "grpo_r3_b2.0",
+        "method": "grpo",
+        "reward": "r3",
+        "beta": 2.0
+      },
+      {
+        "name": "grpo_r4_b2.0",
+        "method": "grpo",
+        "reward": "r4",
+        "beta": 2.0
+      },
+      {
+        "name": "grpo_r5_b1.0",
+        "method": "grpo",
+        "reward": "r5",
+        "beta": 1.0
+      },
+      {
+        "name": "grpo_r5_b3.0",
+        "method": "grpo",
+        "reward": "r5",
+        "beta": 3.0
+      },
+      {
+        "name": "grpo_r1_b1.0_ptx",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 1.0,
+        "ptx_alpha": 0.5
+      },
+      {
+        "name": "grpo_r5_b1.0_ptx",
+        "method": "grpo",
+        "reward": "r5",
+        "beta": 1.0,
+        "ptx_alpha": 0.5
+      },
+      {
+        "name": "bon_r1",
+        "method": "bon",
+        "reward": "r1",
+        "n": 8
+      },
+      {
+        "name": "bon_r5",
+        "method": "bon",
+        "reward": "r5",
+        "n": 8
+      },
+      {
+        "name": "ipo_t0.5",
+        "method": "dpo",
+        "loss": "ipo",
+        "beta": 0.5,
+        "margin": 0.5
+      },
+      {
+        "name": "dpo_b0.5",
+        "method": "dpo",
+        "beta": 0.5,
+        "margin": 0.5
+      },
+      {
+        "name": "grpo_r6_b0.5",
+        "method": "grpo",
+        "reward": "r6",
+        "beta": 0.5
+      },
+      {
+        "name": "grpo_r6_b1.0",
+        "method": "grpo",
+        "reward": "r6",
+        "beta": 1.0
+      },
+      {
+        "name": "grpo_r6_b2.0",
+        "method": "grpo",
+        "reward": "r6",
+        "beta": 2.0
+      },
+      {
+        "name": "grpo_r6_b0.5_nopess",
+        "method": "grpo",
+        "reward": "r6",
+        "beta": 0.5,
+        "kappa": 0.0
+      },
+      {
+        "name": "grpo_r6_b0.5_nopop",
+        "method": "grpo",
+        "reward": "r6",
+        "beta": 0.5,
+        "gamma": 0.0
+      },
+      {
+        "name": "grpo_r6_b0.5_norel",
+        "method": "grpo",
+        "reward": "r6",
+        "beta": 0.5,
+        "lam": 0.0
+      },
+      {
+        "name": "grpo_r6_b0.1",
+        "method": "grpo",
+        "reward": "r6",
+        "beta": 0.1
+      },
+      {
+        "name": "grpo_r6_b1.0_ptx",
+        "method": "grpo",
+        "reward": "r6",
+        "beta": 1.0,
+        "ptx_alpha": 0.5
+      },
+      {
+        "name": "grpo_r1_b2.0_fix",
+        "method": "grpo",
+        "reward": "r1",
+        "beta": 2.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r3_b2.0_fix",
+        "method": "grpo",
+        "reward": "r3",
+        "beta": 2.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r6_b1.0_fix",
+        "method": "grpo",
+        "reward": "r6",
+        "beta": 1.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r7_b2.0_fix",
+        "method": "grpo",
+        "reward": "r7",
+        "beta": 2.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r7h_b2.0_fix",
+        "method": "grpo",
+        "reward": "r7h",
+        "beta": 2.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "ipo_t0.5_fix",
+        "method": "dpo",
+        "loss": "ipo",
+        "beta": 0.5,
+        "margin": 0.5,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "awr_fix",
+        "method": "awr",
+        "temperature": 0.25,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r8_b1.0_fix",
+        "method": "grpo",
+        "reward": "r8",
+        "beta": 1.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r8_b2.0_fix",
+        "method": "grpo",
+        "reward": "r8",
+        "beta": 2.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r8_b0.5_fix",
+        "method": "grpo",
+        "reward": "r8",
+        "beta": 0.5,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r7a_b2.0_fix",
+        "method": "grpo",
+        "reward": "r7a",
+        "beta": 2.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r7a_b1.0_fix",
+        "method": "grpo",
+        "reward": "r7a",
+        "beta": 1.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r9_b1.0_fix",
+        "method": "grpo",
+        "reward": "r9",
+        "beta": 1.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r9_b2.0_fix",
+        "method": "grpo",
+        "reward": "r9",
+        "beta": 2.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r8log_b1.0_fix",
+        "method": "grpo",
+        "reward": "r8log",
+        "beta": 1.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r8log_b2.0_fix",
+        "method": "grpo",
+        "reward": "r8log",
+        "beta": 2.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "awr_hours_g1",
+        "method": "awr",
+        "weight": "hours",
+        "gamma": 1.0,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "awr_hours_g0.5",
+        "method": "awr",
+        "weight": "hours",
+        "gamma": 0.5,
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "awr_wp50",
+        "method": "awr",
+        "weight": "wp50",
+        "temperature": 0.5,
+        "rl_dropout": false
+      },
+      {
+        "name": "awr_full",
+        "method": "awr",
+        "weight": "full",
+        "temperature": 0.5,
+        "rl_dropout": false
+      },
+      {
+        "name": "awr_hours_g1_s2",
+        "method": "awr",
+        "weight": "hours",
+        "gamma": 1.0,
+        "adv_norm": "batch",
+        "seed": 8,
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_hours_g0.0_exp_b1",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.0,
+        "beta": 1.0,
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_hours_g0.5_exp_b1",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.5,
+        "beta": 1.0,
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_hours_g0.9_exp_b1",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "beta": 1.0,
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_hours_g0.9_exp_b0.5",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "beta": 0.5,
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_hours_g0.9_exp_b2",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "beta": 2.0,
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_hours_g0.9_bin",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "f": "binary",
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_hours_g0.9_exp_b1_s2",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "beta": 1.0,
+        "seed": 8,
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_hours_g0.9_exp_b1_long",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "beta": 1.0,
+        "steps": 12000,
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_wp50_g0.9_exp_b1",
+        "method": "crr",
+        "critic_reward": "wp50",
+        "gamma": 0.9,
+        "beta": 1.0,
+        "rl_dropout": false
+      },
+      {
+        "name": "crr_wp50_g0.9_bin",
+        "method": "crr",
+        "critic_reward": "wp50",
+        "gamma": 0.9,
+        "f": "binary",
+        "rl_dropout": false
+      },
+      {
+        "name": "awrv_hours_g0.9_b1",
+        "method": "awrv",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "beta": 1.0,
+        "rl_dropout": false
+      },
+      {
+        "name": "awrv_hours_g0.9_b1_s2",
+        "method": "awrv",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "beta": 1.0,
+        "seed": 8,
+        "rl_dropout": false
+      },
+      {
+        "name": "awrv_wp50_g0.9_b1",
+        "method": "awrv",
+        "critic_reward": "wp50",
+        "gamma": 0.9,
+        "beta": 1.0,
+        "rl_dropout": false
+      },
+      {
+        "name": "awr_hours_g1_s3",
+        "method": "awr",
+        "weight": "hours",
+        "gamma": 1.0,
+        "rl_dropout": false,
+        "adv_norm": "batch",
+        "seed": 9
+      },
+      {
+        "name": "crr_hours_g0.9_exp_b1_s3",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "beta": 1.0,
+        "rl_dropout": false,
+        "seed": 9
+      },
+      {
+        "name": "awrv_hours_g0.9_b1_s3",
+        "method": "awrv",
+        "critic_reward": "hours",
+        "gamma": 0.9,
+        "beta": 1.0,
+        "rl_dropout": false,
+        "seed": 9
+      },
+      {
+        "name": "awr_wp50_s2",
+        "method": "awr",
+        "weight": "wp50",
+        "temperature": 0.5,
+        "rl_dropout": false,
+        "seed": 8
+      },
+      {
+        "name": "awr_wp50_s3",
+        "method": "awr",
+        "weight": "wp50",
+        "temperature": 0.5,
+        "rl_dropout": false,
+        "seed": 9
+      },
+      {
+        "name": "crr_hours_g0.0_exp_b1_s2",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.0,
+        "beta": 1.0,
+        "rl_dropout": false,
+        "seed": 8
+      },
+      {
+        "name": "crr_hours_g0.0_exp_b1_s3",
+        "method": "crr",
+        "critic_reward": "hours",
+        "gamma": 0.0,
+        "beta": 1.0,
+        "rl_dropout": false,
+        "seed": 9
+      },
+      {
+        "name": "grpo_r1_b2.0_p",
+        "reward": "r1",
+        "beta": 2.0,
+        "rm": "personal",
+        "method": "grpo",
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r3_b2.0_p",
+        "reward": "r3",
+        "beta": 2.0,
+        "rm": "personal",
+        "method": "grpo",
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r3_b1.0_p",
+        "reward": "r3",
+        "beta": 1.0,
+        "rm": "personal",
+        "method": "grpo",
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r5_b1.0_p",
+        "reward": "r5",
+        "beta": 1.0,
+        "rm": "personal",
+        "method": "grpo",
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r9_b2.0_p",
+        "reward": "r9",
+        "beta": 2.0,
+        "rm": "personal",
+        "method": "grpo",
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r9_b1.0_p",
+        "reward": "r9",
+        "beta": 1.0,
+        "rm": "personal",
+        "method": "grpo",
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      },
+      {
+        "name": "grpo_r5_b1.0_fix",
+        "reward": "r5",
+        "beta": 1.0,
+        "method": "grpo",
+        "rl_dropout": false,
+        "adv_norm": "batch"
+      }
+    ],
+    "r7_alpha": 0.3
+  },
+  "multistep": {
+    "users": 2000,
+    "steps": 5
+  },
+  "crr": {
+    "lr": 0.001,
+    "batch_size": 256,
+    "epochs": 4,
+    "patience": 1,
+    "holdout_frac": 0.02
+  }
+}

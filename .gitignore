@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+data/raw/
+data/cache/
+out/
+out_full/
+out_smoke/
